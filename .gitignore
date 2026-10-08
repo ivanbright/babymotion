@@ -1,0 +1,18 @@
+# runtime data (session files contain recorded face landmarks - keep local)
+data/
+
+# python
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+
+# generated artifacts
+bench_results.json
+panel_compare.png
+
+# editors / os
+.vscode/
+.idea/
+.DS_Store

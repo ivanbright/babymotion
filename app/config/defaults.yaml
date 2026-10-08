@@ -1,0 +1,132 @@
+# BabyMotion V1 default configuration.
+# Every value here can be overridden by passing another YAML file to
+# load_settings(override_path) or --config on the CLI.
+
+camera:
+  device: 0
+  width: 1280
+  height: 720
+  target_fps: 30
+  backend: auto          # auto | dshow | msmf | default
+  apply_quality: true    # autofocus / sharpness hints where supported
+  mirror: true           # selfie-style flip: baby's right = image-right
+
+microphone:
+  enabled: false
+  device: null
+  sample_rate: 16000
+  block_ms: 100
+
+perception:
+  landmark_model: ""     # empty -> auto-discover models/face_landmarker.task
+  min_face_confidence: 0.5
+  min_landmark_visibility: 0.5
+  use_cascade_fallback: true   # Haar cascade as secondary/fallback detector
+  roi_padding: 0.15
+  max_faces: 1           # V1: single primary face (multi-face is future work)
+
+attention:
+  smoothing_window_ms: 500
+  engage_threshold: 0.65
+  disengage_threshold: 0.35
+  min_confidence: 0.40   # estimates below this confidence are not acted on strongly
+
+temporal:
+  window_short_ms: 1000
+  window_medium_ms: 3000
+  window_long_ms: 5000
+  state_update_hz: 10
+  ema_alpha: 0.35
+  motion_enter: 0.08      # normalized motion above this counts as "moving"
+  motion_exit: 0.04       # hysteresis exit threshold
+  event_min_duration_ms: 250
+  face_loss_grace_ms: 700 # tolerate brief tracking loss before FACE_LOST
+
+state:
+  min_dwell_ms: 800       # minimum time in a state before another transition
+  engaged_min_attention: 0.60
+  low_engagement_attention: 0.35
+  responding_timeout_ms: 4000
+  cooldown_ms: 3000
+
+twin:
+  exaggeration:
+    mouth: 1.5
+    head_rotation: 1.3
+    facial_motion: 1.4
+    expression: 1.2
+  neutral:
+    mouth_open: 0.10
+    mouth_width: 0.45
+    eye_open: 0.80
+  limits:
+    mouth_open: [0.0, 1.0]
+    smile: [0.0, 1.0]
+    head_yaw: [-45.0, 45.0]
+    head_pitch: [-35.0, 35.0]
+    head_roll: [-30.0, 30.0]
+    eye_scale: [0.5, 1.3]
+    expression_intensity: [0.0, 1.0]
+  response_speed_ms: 250  # twin smoothing time constant
+  mesh:                   # textured 3D mesh twin (warps the baby's own pixels)
+    expression_gain: 1.6  # amplifies non-rigid expression displacement
+    depth_gain: 1.4       # amplifies depth displacement (3D pop)
+    head_rotation_gain: 0.0   # 0 = use twin.exaggeration.head_rotation
+    action_boost: 1.6     # extra multiplier during expressive twin actions
+    vertex_smoothing: 250 # ms time constant for mesh vertex targets
+    neutral_update_rate: 0.05    # EMA alpha for neutral template refresh
+    neutral_mouth_band: 0.15     # mouth_open within this band of neutral counts
+    neutral_max_facial_activity: 0.12
+    shading: true         # depth-based flat shading
+    spacing_ratio: 0.12   # render-mesh min point spacing / face width
+    render_scale: 0.5     # rasterize the mesh at this fraction of frame size
+    grid_step: 4          # displacement-field grid step (work-res pixels)
+    min_frame_interval_ms: 33  # rasterization throttle (geometry updates 1:1)
+    panel_height: 300     # twin panel height in the debug window
+    background_blur: 21   # blur radius of the camera image behind the mesh
+
+interaction:
+  policy: rule_based
+  stimulus_window_ms: 3000       # baby response counted within this window
+  response_event_gap_ms: 400     # debounce between counted responses
+  min_confidence_to_act: 0.40
+  novelty_interval_s: 20.0       # introduce novel variation at most this often
+  imitation_window_ms: 2500
+
+activities:
+  default_duration_seconds: 30
+  # deterministic stimulus schedules (seconds from activity start)
+  mirror:
+    duration: 30
+  exaggerated_mirror:
+    duration: 30
+  follow:
+    duration: 30
+    move_period_s: 4.0
+  cause_effect:
+    duration: 30
+    hold_threshold_s: 1.5
+  repetition:
+    duration: 40
+    repeat_period_s: 3.0
+    repeats: 8
+
+session:
+  default_duration_seconds: 120
+
+recording:
+  save_video: false       # privacy: video is opt-in only
+  save_features: true
+  output_dir: "data/sessions"
+  video_dir: "recordings"
+
+api:
+  host: "127.0.0.1"
+  port: 8000
+  enabled: false
+
+debug:
+  show_window: true
+  window_name: "BabyMotion Debug"
+  draw_landmarks: true
+  fullscreen: true     # draw at screen resolution and show fullscreen
